@@ -1,7 +1,5 @@
-#!/usr/bin/env node
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import {
 	CallToolRequestSchema,
 	ErrorCode,
@@ -12,23 +10,18 @@ import {
 const API_BASE_URL = "https://api.subjct.ai";
 
 interface SubjctConfig {
-	apiKey?: string;
-	secretKey?: string;
-	organisationId?: string;
-	propertyId?: string;
+	token?: string;
 }
 
 class SubjctServer {
 	private server: Server;
-	// private config: SubjctConfig;
+	private config: SubjctConfig;
 
 	constructor() {
-		// this.config = {
-		//   apiKey: process.env.SUBJCT_API_KEY,
-		//   secretKey: process.env.SUBJCT_SECRET_KEY,
-		//   organisationId: process.env.SUBJCT_ORGANISATION_ID,
-		//   propertyId: process.env.SUBJCT_PROPERTY_ID,
-		// };
+		this.config = {
+			token:
+				process.env.SUBJCT_TOKEN
+		};
 
 		this.server = new Server(
 			{
@@ -52,24 +45,32 @@ class SubjctServer {
 		});
 	}
 
+	private validateApiKey(): void {
+		if (!this.config.token) {
+			throw new Error("API key is required. Please login first or set SUBJCT_TOKEN environment variable.");
+		}
+	}
+
 	private async makeRequest(
 		endpoint: string,
 		method: "GET" | "POST" | "PUT" = "GET",
-		body?: any,
-		useSecretKey: boolean = false,
+		body?: unknown,
 		customHeaders?: Record<string, string>,
-	): Promise<any> {
+		requiresAuth: boolean = true,
+	): Promise<unknown> {
+		if (requiresAuth) {
+			this.validateApiKey();
+		}
+
 		const url = `${API_BASE_URL}${endpoint}`;
 		const headers: Record<string, string> = {
 			"Content-Type": "application/json",
 			...customHeaders,
 		};
 
-		// if (useSecretKey && this.config.secretKey) {
-		//   headers['X-Secret-Key'] = this.config.secretKey;
-		// } else if (this.config.apiKey) {
-		//   headers['Authorization'] = `Bearer ${this.config.apiKey}`;
-		// }
+		if (this.config.token) {
+			headers["Authorization"] = this.config.token;
+		}
 
 		const response = await fetch(url, {
 			method,
@@ -133,6 +134,20 @@ class SubjctServer {
 							},
 						},
 						required: ["email", "password"],
+					},
+				},
+				{
+					name: "set_api_key",
+					description: "Set the API key for authentication",
+					inputSchema: {
+						type: "object",
+						properties: {
+							token: {
+								type: "string",
+								description: "API token/key for authentication",
+							},
+						},
+						required: ["token"],
 					},
 				},
 
@@ -531,6 +546,7 @@ class SubjctServer {
 
 		this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
 			const { name, arguments: args } = request.params;
+			console.log(request);
 
 			try {
 				switch (name) {
@@ -538,6 +554,8 @@ class SubjctServer {
 						return await this.handleLogin(args);
 					case "signup":
 						return await this.handleSignup(args);
+					case "set_api_key":
+						return await this.handleSetApiKey(args);
 					case "get_organisation":
 						return await this.handleGetOrganisation();
 					case "get_organisation_users":
@@ -602,7 +620,13 @@ class SubjctServer {
 
 	// Tool handlers
 	private async handleLogin(args: any) {
-		const result = await this.makeRequest("/auth/login", "POST", args);
+		const result = await this.makeRequest("/auth/login", "POST", args, {}, false);
+		
+		// Update the token if login was successful
+		if (result && typeof result === 'object' && 'token' in result) {
+			this.config.token = (result as any).token;
+		}
+		
 		return {
 			content: [
 				{
@@ -614,12 +638,24 @@ class SubjctServer {
 	}
 
 	private async handleSignup(args: any) {
-		const result = await this.makeRequest("/auth/signup", "POST", args);
+		const result = await this.makeRequest("/auth/signup", "POST", args, {}, false);
 		return {
 			content: [
 				{
 					type: "text",
 					text: JSON.stringify(result, null, 2),
+				},
+			],
+		};
+	}
+
+	private async handleSetApiKey(args: any) {
+		this.config.token = args.token;
+		return {
+			content: [
+				{
+					type: "text",
+					text: "API key has been set successfully.",
 				},
 			],
 		};
@@ -710,7 +746,7 @@ class SubjctServer {
 
 	private async handleAddArticle(args: any) {
 		const endpoint = `/ingest/${args.organisationId}/${args.propertyId}/article`;
-		const result = await this.makeRequest(endpoint, "POST", args.article, true);
+		const result = await this.makeRequest(endpoint, "POST", args.article);
 		return {
 			content: [
 				{
@@ -723,7 +759,7 @@ class SubjctServer {
 
 	private async handleGetArticleWithAnalysis(args: any) {
 		const endpoint = `/article/${args.organisationId}/${args.propertyId}/${args.articleId}`;
-		const result = await this.makeRequest(endpoint, "GET", undefined, true);
+		const result = await this.makeRequest(endpoint, "GET");
 		return {
 			content: [
 				{
@@ -736,7 +772,7 @@ class SubjctServer {
 
 	private async handleUpdateArticle(args: any) {
 		const endpoint = `/article/${args.organisationId}/${args.propertyId}/${args.articleId}`;
-		const result = await this.makeRequest(endpoint, "PUT", args.article, true);
+		const result = await this.makeRequest(endpoint, "PUT", args.article);
 		return {
 			content: [
 				{
@@ -749,7 +785,7 @@ class SubjctServer {
 
 	private async handleGetSimilarArticles(args: any) {
 		const endpoint = `/article/${args.organisationId}/${args.propertyId}/${args.articleId}/similar_articles`;
-		const result = await this.makeRequest(endpoint, "GET", undefined, true);
+		const result = await this.makeRequest(endpoint, "GET");
 		return {
 			content: [
 				{
@@ -762,7 +798,7 @@ class SubjctServer {
 
 	private async handleAutolinkArticle(args: any) {
 		const endpoint = `/autolink/${args.organisationId}/${args.propertyId}/${args.articleId}`;
-		const result = await this.makeRequest(endpoint, "POST", undefined, true);
+		const result = await this.makeRequest(endpoint, "POST");
 		return {
 			content: [
 				{
@@ -775,7 +811,7 @@ class SubjctServer {
 
 	private async handleAddTopic(args: any) {
 		const endpoint = `/ingest/${args.organisationId}/${args.propertyId}/topic`;
-		const result = await this.makeRequest(endpoint, "POST", args.topic, true);
+		const result = await this.makeRequest(endpoint, "POST", args.topic);
 		return {
 			content: [
 				{
@@ -824,12 +860,7 @@ class SubjctServer {
 
 	private async handleCreatePropertyFromUrl(args: any) {
 		const endpoint = `/property/${args.organisationId}/from/url`;
-		const result = await this.makeRequest(
-			endpoint,
-			"POST",
-			{ url: args.url },
-			true,
-		);
+		const result = await this.makeRequest(endpoint, "POST", { url: args.url });
 		return {
 			content: [
 				{
@@ -842,7 +873,7 @@ class SubjctServer {
 
 	private async handleGetOrganisationMetrics(args: any) {
 		const endpoint = `/metrics/${args.organisationId}`;
-		const result = await this.makeRequest(endpoint, "GET", undefined, true);
+		const result = await this.makeRequest(endpoint, "GET");
 		return {
 			content: [
 				{
@@ -855,7 +886,7 @@ class SubjctServer {
 
 	private async handleGetPropertyMetrics(args: any) {
 		const endpoint = `/metrics/${args.organisationId}/${args.propertyId}`;
-		const result = await this.makeRequest(endpoint, "GET", undefined, true);
+		const result = await this.makeRequest(endpoint, "GET");
 		return {
 			content: [
 				{
@@ -868,7 +899,7 @@ class SubjctServer {
 
 	private async handleGetArticleMetrics(args: any) {
 		const endpoint = `/metrics/${args.organisationId}/${args.propertyId}/article/${args.articleId}`;
-		const result = await this.makeRequest(endpoint, "GET", undefined, true);
+		const result = await this.makeRequest(endpoint, "GET");
 		return {
 			content: [
 				{
@@ -881,7 +912,7 @@ class SubjctServer {
 
 	private async handleGetArticleAnalysis(args: any) {
 		const endpoint = `/analysis/${args.organisationId}/${args.propertyId}/article/${args.articleId}`;
-		const result = await this.makeRequest(endpoint, "GET", undefined, true);
+		const result = await this.makeRequest(endpoint, "GET");
 		return {
 			content: [
 				{
@@ -894,7 +925,7 @@ class SubjctServer {
 
 	private async handleGetArticleLinks(args: any) {
 		const endpoint = `/analysis/${args.organisationId}/${args.propertyId}/links/${args.articleId}`;
-		const result = await this.makeRequest(endpoint, "GET", undefined, true);
+		const result = await this.makeRequest(endpoint, "GET");
 		return {
 			content: [
 				{
@@ -907,7 +938,7 @@ class SubjctServer {
 
 	private async handleTriggerJsonLdGeneration(args: any) {
 		const endpoint = `/analysis/${args.organisationId}/${args.propertyId}/jsonLd/${args.articleId}`;
-		const result = await this.makeRequest(endpoint, "POST", undefined, true);
+		const result = await this.makeRequest(endpoint, "POST");
 		return {
 			content: [
 				{

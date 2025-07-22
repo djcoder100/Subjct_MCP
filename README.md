@@ -103,3 +103,16 @@ Certainly! Here is a concise 3-slide pitch deck summary for the hackathon idea i
 
 
 
+
+
+## Install
+
+```json
+    "subjct": {
+      "command": "{FULL_PATH}/node",
+      "args": ["{FULL_PATH}/index.ts"],
+      "env": {
+      }
+    }
+
+```
