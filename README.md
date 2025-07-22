@@ -3,6 +3,8 @@
 see : 
 * https://github.com/Systerr/Subjct_MCP
 * https://docs.google.com/document/d/1ap0IUbJMawF6KA_6MYG0ClZHlMLPTn2tcFXBfSFH1ck/edit?tab=t.0
+* https://lu.ma/ibaiz50k?tk=7YCgct
+
 
 ## Objective
 Develop a Model Context Protocol (MCP) server using SUBJCT's provided API endpoints to demonstrate capabilities and solve real-world content optimisation challenges via an agentic delivery method.
