@@ -2,6 +2,7 @@
   "name": "subct",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "homepage": "https://github.com/Systerr/Subjct_MCP#readme",
   "bugs": {
     "url": "https://github.com/Systerr/Subjct_MCP/issues"
@@ -12,9 +13,11 @@
   },
   "license": "ISC",
   "author": "",
-  "type": "commonjs",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.16.0"
   }
 }
