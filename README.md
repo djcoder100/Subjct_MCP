@@ -52,3 +52,16 @@ SUBJCT Swagger Documentation: https://api.subjct.ai/docs/swagger/
 
 * https://emmajaneknight.com/blogs/news/juicing-the-2025-creative-comfort-zone
 * 
+
+
+## Install
+
+```json
+    "subjct": {
+      "command": "{FULL_PATH}/node",
+      "args": ["{FULL_PATH}/index.ts"],
+      "env": {
+      }
+    }
+
+```
