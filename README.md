@@ -1,5 +1,7 @@
 # SUBJCT MCP Server
 
+see : https://github.com/Systerr/Subjct_MCP
+
 ## Objective
 Develop a Model Context Protocol (MCP) server using SUBJCT's provided API endpoints to demonstrate capabilities and solve real-world content optimisation challenges via an agentic delivery method.
 
