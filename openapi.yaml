@@ -1,0 +1,1889 @@
+openapi: 3.0.3
+info:
+  title: SUBJCT API
+  description: |-
+    ### Automated Linking, Scaled.
+    
+    ## Authentication
+    Subjct supports two authentication methods:
+    - User Authentication
+    - Secret Keys
+    
+    We have done this so that it is easier to integrate with Subjct API's. Most of the endpoints support both authentication methods.
+    
+    NOTE: enpoints where the path does not have /__organisationID__/ parameter won't allow secretKey authentication.
+    
+  termsOfService: http://subjct.ai/terms/
+  contact:
+    email: ricardo@subjct.ai
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 0.0.1
+externalDocs:
+  description: Find out more about SUBJCT
+  url: http://subjct.ai
+servers:
+  - url: https://api.subjct.ai
+tags:
+  - name: auth
+    description: Authentication
+  - name: org
+    description: Organisation
+  - name: properties
+    description: Properties
+  - name: search
+    description: Content Search Endpoints
+  - name: article
+    description: Article Endpoints
+  - name: ingest
+    description: Content Ingestion Endpoints
+  - name: analysis
+    description: Content Analysis Endpoints
+  - name: metrics
+    description: Metrics Endpoints
+paths:
+  /auth/login:
+    post:
+      tags:
+        - auth
+      summary: Login
+      description: Login
+      operationId: login
+      requestBody:
+        $ref: '#/components/requestBodies/LoginRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/signup:
+    post:
+      tags:
+        - auth
+      summary: Signup
+      description: Signup
+      operationId: signup
+      requestBody:
+        $ref: '#/components/requestBodies/SignupRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignupResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /org:
+    get:
+      security:
+        - Authorization: []
+      tags:
+        - org
+      summary: Get Organisation
+      description: Returns the organisation info for the current user based on the orgId in the JWT token
+      operationId: getOrganisation
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganisationResponse'
+        '400':
+          description: Invalid token or missing orgId
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Organisation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /org/users:
+    get:
+      security:
+        - Authorization: []
+      tags:
+        - org
+      summary: Get Organisation Users
+      description: Returns a list of users in the organisation based on the orgId in the JWT token
+      operationId: getOrganisationUsers
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            X-Total-Count:
+              description: Total number of users
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Invalid token or pagination parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Organisation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /search/articles:
+    post:
+      tags:
+        - search
+      summary: Search for Articles
+      description: Search for Articles
+      operationId: searchArticles
+      security:
+        - Authorization: [ ]
+      requestBody:
+        $ref: '#/components/requestBodies/SearchRequest'
+      responses:
+        '200':
+          headers:
+            X-Total-Count:
+              schema:
+                type: integer
+                description: Total number of articles
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation exception
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /search/{organisationID}/articles:
+    post:
+      tags:
+        - search
+      summary: Search for Articles in Organisation
+      description: Search for Articles scoped to a specific organisation
+      operationId: searchOrganisationArticles
+      security:
+        - Authorization: [ ]
+      parameters:
+        - in: path
+          name: organisationID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        $ref: '#/components/requestBodies/SearchRequest'
+      responses:
+        '200':
+          headers:
+            X-Total-Count:
+              schema:
+                type: integer
+                description: Total number of articles
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /search/{organisationID}/{propertyID}/topics:
+    post:
+      tags:
+        - search
+      summary: Search for Topics in a Property
+      description: Search for Topics in a specific property
+      operationId: searchTopicsInProperty
+      security:
+        - Authorization: [ ]
+      parameters:
+        - in: path
+          name: organisationID
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: propertyID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        $ref: '#/components/requestBodies/SearchRequest'
+      responses:
+        '200':
+          headers:
+            X-Total-Count:
+              schema:
+                type: integer
+                description: Total number of topics
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /search/{organisationID}/{propertyID}/articles:
+    post:
+      tags:
+        - search
+      summary: Search Article by URL
+      description: Returns the article given a URL
+      operationId: searchArticleByURL
+      security:
+        - Authorization: [ ]
+      parameters:
+        - in: path
+          name: organisationID
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: propertyID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - url
+              properties:
+                url:
+                  type: string
+      responses:
+        '200':
+          headers:
+            X-Total-Count:
+              schema:
+                type: integer
+                description: Total number of matching articles
+          description: Article found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Article not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /ingest/{organisationID}/{propertyID}/article:
+    post:
+      tags:
+        - ingest
+      summary: Add a new Article to a property
+      description: Add a new Article to a property
+      operationId: addArticle
+      parameters:
+        - name: organisationID
+          in: path
+          description: ID of the Organisation
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: propertyID
+          in: path
+          description: ID of the Target Property
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Secret-Key
+          in: header
+          description: Secret Key for the Organisation
+          required: true
+          schema:
+            type: string
+            
+      requestBody:
+        $ref: '#/components/requestBodies/ArticleRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid Secret Key for Organisation + Property
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Organisation or Property not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict - Article URL already exists with a different ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation exception
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error ingesting article
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /ingest/{organisationID}/{propertyID}/topic:
+    post:
+      tags:
+        - ingest
+      summary: Add a new Topic to a property
+      description: Add a new Topic to a property
+      operationId: addTopic
+      parameters:
+        - name: organisationID
+          in: path
+          description: ID of the Organisation
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: propertyID
+          in: path
+          description: ID of the Target Property
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Secret-Key
+          in: header
+          description: Secret Key for the Organisation
+          required: true
+          schema:
+            type: string
+            
+      requestBody:
+        $ref: '#/components/requestBodies/TopicRequest'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TopicResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid Secret Key for Organisation + Property
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Organisation or Property not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation exception
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error ingesting topic
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /article/{organisationID}/{propertyID}/{articleID}:
+    get:
+      tags:
+        - article
+      summary: Get Article with Analysis Result
+      description: Get Article with Analysis and Links Result
+      operationId: getArticleWithAnlysisAndLinks
+      parameters:
+        - name: organisationID
+          in: path
+          description: ID of the Organisation
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: propertyID
+          in: path
+          description: ID of the Target Property
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: articleID
+          in: path
+          description: ID of the Article
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Secret-Key
+          in: header
+          description: Secret Key for the Organisation
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleWithAnalysisAndLinksResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid Secret Key for Organisation + Property
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorResponse'
+        '425':
+          description: Too Early - Indicates that the article has not been processed yet
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - article
+      summary: Update Article
+      description: Update an existing article by organisation, property, and article ID
+      operationId: updateArticle
+      parameters:
+        - name: organisationID
+          in: path
+          description: ID of the Organisation
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: propertyID
+          in: path
+          description: ID of the Target Property
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: articleID
+          in: path
+          description: ID of the Article
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Secret-Key
+          in: header
+          description: Secret Key for the Organisation
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Updated article data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Article'
+      responses:
+        '200':
+          description: Article updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Invalid secret key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Organisation or property not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error updating article
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /article/{organisationID}/{propertyID}/{articleID}/similar_articles:
+    get:
+      tags:
+        - article
+      summary: Get a list of 10 articles with similar summaries
+      description: Get a list of 10 articles with similar summaries
+      operationId: getSimilarArticles
+      parameters:
+        - name: organisationID
+          in: path
+          description: ID of the Organisation
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: propertyID
+          in: path
+          description: ID of the Target Property
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: articleID
+          in: path
+          description: ID of the Article
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Secret-Key
+          in: header
+          description: Secret Key for the Organisation
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimilarArticles'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid Secret Key for Organisation + Property
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorResponse'
+        '425':
+          description: Too Early - Indicates that the article has not been processed yet
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /autolink/{organisationID}/{propertyID}/{articleID}:
+    post:
+      tags:
+        - article
+      operationId: autolinkArticle
+      summary: Trigger process for auto linking the article
+      description: |-
+        Auto linking inserts new links into the article linking entities to topic pages and phrases to other articles.
+        Links are inserted according to rules aimed to maximise the link score of the page and the SEO authority of the site
+        The autolinking process does not remove pre-existing links, but can be rerun which may remove a subjct link from earlier run.
+        The linking process is asyncronous, if triggering is successful, periodically poll See [GET /article/{organisationID}/{propertyID}/{articleID}:](#/article/getArticleWithAnalysisAndLinks) and compare the `article.autoLinked` datetime field to understand when autolinking was last completed
+        The `article.html` is updated adding a `data-subjct` to ALL links in the article, the value of the attribute describes the link type `prior` | `topic` | `phrase-link`.
+      parameters:
+        - name: organisationID
+          in: path
+          description: ID of the Organisation
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: propertyID
+          in: path
+          description: ID of the Target Property
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: articleID
+          in: path
+          description: ID of the Article
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Secret-Key
+          in: header
+          description: Secret Key for the Organisation
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid Secret Key for Organisation + Property
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: No such article
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorResponse'
+        '425':
+          description: Too Early - Indicates that the article has not been processed yet
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /metrics/{organisationID}:
+    get:
+      tags:
+        - metrics
+      summary: Get organisation-wide metrics
+      description: Returns overall metrics for the organisation, using data from one of its properties.
+      operationId: getOrganisationMetrics
+      parameters:
+        - name: organisationID
+          in: path
+          description: UUID of the organisation
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Secret-Key
+          in: header
+          description: Secret key to authenticate the organisation
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Metrics successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsResponse'
+        '400':
+          description: Bad request or invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized or invalid secret key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '425':
+          description: Too Early - The data is still being processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /metrics/{organisationID}/{propertyID}:
+    get:
+      tags:
+        - metrics
+      summary: Get property-level metrics
+      description: Returns metrics for a specific property under a given organisation.
+      operationId: getOrganisationAndPropertyMetrics
+      parameters:
+        - name: organisationID
+          in: path
+          description: UUID of the organisation
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: propertyID
+          in: path
+          description: UUID of the property
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Secret-Key
+          in: header
+          description: Secret key to authenticate the organisation
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Metrics successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsResponse'
+        '400':
+          description: Bad request or invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized or invalid secret key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '425':
+          description: Too Early - The data is still being processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /metrics/{organisationID}/{propertyID}/article/{articleID}:
+    get:
+      tags:
+        - metrics
+      summary: Get metrics for a specific article
+      description: Returns detailed metrics for a specific article under a property and organisation.
+      operationId: getOrganisationAndPropertyAndArticleMetrics
+      parameters:
+        - name: organisationID
+          in: path
+          description: UUID of the organisation
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: propertyID
+          in: path
+          description: UUID of the property
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: articleID
+          in: path
+          description: UUID of the article
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Secret-Key
+          in: header
+          description: Secret key to authenticate the organisation
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Metrics successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsResponse'
+        '400':
+          description: Bad request or invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized or invalid secret key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '425':
+          description: Too Early - The article has not been processed yet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /analysis/{organisationID}/{propertyID}/article/{articleID}:
+    get:
+      tags:
+        - analysis
+      summary: Get Article Analysis Result
+      description: Get Article Analysis Results
+      operationId: getArticleAnalysis
+      parameters:
+        - name: organisationID
+          in: path
+          description: ID of the Organisation
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: propertyID
+          in: path
+          description: ID of the Target Property
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: articleID
+          in: path
+          description: ID of the Article
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Secret-Key
+          in: header
+          description: Secret Key for the Organisation
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleAnalysis'
+        '404':
+          description: Property not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid Secret Key for Organisation + Property
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorResponse'
+        '425':
+          description: Too Early - Indicates that the article has not been processed yet
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorResponse'
+  /analysis/{organisationID}/{propertyID}/links/{articleID}:
+    get:
+      tags:
+        - analysis
+      summary: Get Article Links Result
+      description: Get Article Links Results
+      operationId: getArticleLinks
+      parameters:
+        - name: organisationID
+          in: path
+          description: ID of the Organisation
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: propertyID
+          in: path
+          description: ID of the Target Property
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: articleID
+          in: path
+          description: ID of the Article
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Secret-Key
+          in: header
+          description: Secret Key for the Organisation
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleLinks'
+        '404':
+          description: Property not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid Secret Key for Organisation + Property
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorResponse'
+        '425':
+          description: Too Early - Indicates that the article has not been processed yet
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ErrorResponse'
+  /analysis/{organisationID}/{propertyID}/jsonLd/{articleID}:
+    post:
+      tags:
+        - analysis
+      summary: Trigger JSON-LD Generation
+      description: |
+        Triggers JSON-LD generation for the given article. If the article has already been processed, an error is returned.
+      operationId: triggerJsonLdGeneration
+      parameters:
+        - name: organisationID
+          in: path
+          description: ID of the Organisation
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: propertyID
+          in: path
+          description: ID of the Target Property
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: articleID
+          in: path
+          description: ID of the Article
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Secret-Key
+          in: header
+          description: Secret Key for the Organisation
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Trigger accepted successfully
+        '400':
+          description: JSON-LD already generated or invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Invalid Secret Key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Organisation, property, or article not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /property:
+    get:
+      tags:
+        - properties
+      summary: Get all properties for the authenticated organisation
+      operationId: getProperties
+      security:
+        - Authorization: [ ]
+      responses:
+        '200':
+          description: A list of properties
+          headers:
+            X-Total-Count:
+              description: Total number of properties
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Property'
+        '404':
+          description: Properties not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - properties
+      summary: Create a new property
+      operationId: createProperty
+      security:
+        - Authorization: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Property'
+      responses:
+        '200':
+          description: Successfully created property
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+        '400':
+          description: Invalid input
+        '404':
+          description: Creation failed
+  /property/{id}:
+    get:
+      tags:
+        - properties
+      summary: Get a property by ID
+      operationId: getPropertyById
+      security:
+        - Authorization: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Property found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+        '404':
+          description: Property not found
+
+    put:
+      tags:
+        - properties
+      summary: Update an existing property
+      operationId: updateProperty
+      security:
+        - Authorization: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Property'
+      responses:
+        '200':
+          description: Updated property
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+        '400':
+          description: Invalid input
+        '403':
+          description: Unauthorized
+        '404':
+          description: Property not found
+        '500':
+          description: Internal server error
+  /property/{organisationID}/from/url:
+    post:
+      tags:
+        - properties
+      summary: Find or Create a Property for a given URL
+      operationId: createPropertyFromUrl
+      security:
+        - Authorization: [ ]
+      parameters:
+        - name: organisationID
+          in: path
+          description: ID of the Organisation
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Secret-Key
+          in: header
+          description: Secret Key for the Organisation
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid Secret Key for Organisation + Property
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '425':
+          description: Too Early - Article has not been processed yet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    SignupRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: secretPassword123
+        orgName:
+          type: string
+          description: Organisation name, required if creating a new organisation
+          example: "My Organization"
+        orgId:
+          type: string
+          description: Organisation ID, required if joining an existing organisation
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      required:
+        - email
+        - password
+      oneOf:
+        - required: [ orgName ]
+        - required: [ orgId ]
+    SignupResponse:
+      type: string
+      example: success
+    ErrorResponse:
+      type: object
+      properties:
+        message: 
+          type: string
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        org:
+          type: string
+          format: uuid
+          description: Organisation ID
+          example: "223e4567-e89b-12d3-a456-426614174000"
+        roles:
+          type: array
+          items:
+            type: string
+          example: [ "User", "Admin" ]
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-07-20T15:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2024-07-21T10:32:45Z"
+    EntityItem:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Lowercase version of the entity text
+          example: "artificial intelligence"
+        anchor:
+          type: string
+          description: Original case entity text as found in content
+          example: "Artificial Intelligence"
+        category:
+          type: string
+          description: Category of the entity
+          enum: [entities, events, organisations, people, products, locations]
+          example: "entities"
+        occurs:
+          type: integer
+          description: Number of times this entity appears in the article content
+          example: 5
+    Search:
+      type: object
+      properties:
+        properties:
+          type: array
+          items:
+            type: string
+            format: uuid
+        size:
+          type: integer
+          format: int32
+        from:
+          type: integer
+          format: int32
+        query:
+          type: string
+    SearchResponse:
+      type: array
+      items:
+        allOf:
+          - type: object
+            properties:
+              id: 
+                type: string
+                format: uuid
+              propertyId:
+                type: string
+                format: uuid
+              organisationId:
+                type: string
+                format: uuid
+          - $ref: '#/components/schemas/Article'
+    ArticleWithAnalysisAndLinksResponse:
+      type: object
+      properties:
+        article:
+           $ref: '#/components/schemas/Article'
+        links:
+            $ref: '#/components/schemas/ArticleLinks'
+        entities:
+          type: array
+          description: Entities extracted from the article content, ordered by occurrence count (highest first)
+          items:
+            $ref: '#/components/schemas/EntityItem'
+        analysis:
+          $ref: '#/components/schemas/ArticleAnalysis'
+    ArticleLinks:
+      type: array
+      items:
+        type: object
+        properties:
+          articleId:
+            type: string
+            format: uuid
+          id:
+            type: string
+            format: uuid
+          anchor:
+            type: string
+            example: Internal Linking Automated
+          isInternal:
+            type: boolean
+          isPrior:
+            type: boolean
+          isPhraseLink:
+            type: boolean
+          isTopic:
+            type: boolean
+          isCandidate:
+            type: boolean
+          startCaret:
+            type: integer
+          endCaret:
+            type: integer
+          url:
+            type: string
+            example: http://subjct.ai/article/test
+    MetricsResponse:
+      type: object
+      properties:
+        metrics:
+          type: object
+          properties:
+            articles:
+              type: integer
+            links:
+              type: object
+              properties:
+                total:
+                  type: number
+                internal:
+                  type: number
+                external:
+                  type: number
+            words:
+              type: object
+              properties:
+                total:
+                  type: number
+                minimum:
+                  type: number
+                maximum:
+                  type: number
+                average:
+                  type: number
+    OrganisationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: Subjct
+        secretKeys:
+          type: array
+          items:
+            type:
+              string
+            example: sk__UUID
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time    
+    ArticleAnalysis:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        category:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        summary:
+          type: string
+        sentiment:
+          type: string
+          example: "0.35"
+        entities:
+          type: array
+          items:
+            type: string
+        events:
+          type: array
+          items:
+            type: string
+        organisations:
+          type: array
+          items:
+            type: string
+        people:
+          type: array
+          items:
+            type: string
+        products:
+          type: array
+          items:
+            type: string
+        locations:
+          type: array
+          items:
+            type: string
+        linkedEntities:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkedEntity'
+    LinkedEntity:
+      type: object
+      properties:
+        category:
+          type: string
+        name:
+          type: string
+        kgId:
+          type: string
+        source:
+          type: string
+    ArticleResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        externalId:
+          type: string
+        organisationId:
+          type: string
+          format: uuid
+        propertyId:
+          type: string
+          format: uuid
+        contentHash:
+          type: string
+        htmlHash:
+          type: string
+    Topic:
+      type: object
+      properties:
+        externalId:
+          type: string
+        url:
+          type: string
+          format: url
+        text:
+          type: string
+    TopicResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        externalId:
+          type: string
+        organisationId:
+          type: string
+          format: uuid
+        propertyId:
+          type: string
+          format: uuid
+    SimilarArticle:
+      type: object
+      properties:
+        Id:
+          type: string
+        title:
+          type: string
+        href:
+          type: string
+          format: url
+    SimilarArticles:
+      type: array
+      items:
+        allOf:
+          - $ref: '#/components/schemas/SimilarArticle'
+    Article:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organisationId:
+          type: string
+          format: uuid
+        propertyId:
+          type: string
+          format: uuid
+        contentHash:
+          type: string
+        htmlHash:
+          type: string
+        evergreen:
+          type: boolean
+        hotPeriodStart:
+          type: string
+          format: date-time
+          nullable: true
+        hotPeriodEnd:
+          type: string
+          format: date-time
+          nullable: true
+        jsonLdGeneratedAt:
+          type: string
+          format: date-time
+          nullable: true
+        externalId:
+          type: string
+        url:
+          type: string
+          format: url
+        datePublished:
+          type: string
+          format: date-time
+          nullable: true
+        dateUpdated:
+          type: string
+          format: date-time
+        dateCreated:
+          type: string
+          format: date-time
+        autoLinked:
+          type: string
+          format: date-time
+        title:
+          type: string
+        language:
+          type: string
+        images:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              alt:
+                type: string
+              url:
+                type: string
+                format: url
+        authors:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              url:
+                type: string
+                format: url
+        content:
+          type: string
+        html:
+          type: string
+        jsonLd:
+          type: string
+          description: JSON-LD structured metadata, sent as a serialized JSON string
+          example: >-
+            {
+              \"@context\": \"https://schema.org\",
+              \"@type\": \"NewsArticle\",
+              \"@id\": \"https://www.example.com/articles/12345#article\",
+              \"isPartOf\": {
+                \"@id\": \"https://www.example.com/articles/12345/\"
+              },
+              \"author\": {
+                \"name\": \"Alex Johnson\",
+                \"@id\": \"https://www.example.com/#/schema/person/abc123xyz\"
+              },
+              \"headline\": \"Tech breakthrough reshapes future of clean energy\",
+              \"datePublished\": \"2025-06-01T09:30:00+00:00\",
+              \"mainEntityOfPage\": {
+                \"@id\": \"https://www.example.com/articles/12345/\"
+              },
+              \"wordCount\": 1540,
+              \"publisher\": {
+                \"@id\": \"https://www.example.com/#organization\"
+              },
+              \"image\": {
+                \"@id\": \"https://www.example.com/articles/12345/#primaryimage\"
+              },
+              \"thumbnailUrl\": \"https://www.example.com/assets/images/article-thumbnail.jpg\",
+              \"keywords\": [
+                \"Technology\",
+                \"Renewable Energy\",
+                \"Innovation\",
+                \"Climate\"
+              ],
+              \"articleSection\": [\"Environment\"],
+              \"inLanguage\": \"en-GB\",
+              \"copyrightYear\": \"2025\",
+              \"copyrightHolder\": {
+                \"@id\": \"https://www.example.com/#organization\"
+              }
+            }
+        breadcrumbs:
+          type: array
+          items:
+            type: object
+            properties:
+              position:
+                type: integer
+              name:
+                type: string
+              url:
+                type: string
+                format: url
+          example:
+            - position: 1
+              name: "Home"
+              url: "https://example.com"
+            - position: 2
+              name: "Technology"
+              url: "https://example.com/technology"
+            - position: 3
+              name: "AI Revolutionizes OpenAPI Schema"
+              url: "https://example.com/technology/ai-openapi"
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          example: examplePassword
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: a long jwt token
+    Property:
+      type: object
+      properties:
+        id:
+          type: string
+        organisationId:
+          type: string
+        icons:
+          type: array
+          items:
+            type: object
+            properties:
+              url:
+                type: string
+              mimetype:
+                type: string
+              extension:
+                type: string
+              width:
+                type: integer
+              height:
+                type: integer
+              hash:
+                type: string
+        target:
+          type: object
+          properties:
+            version:
+              type: string
+            name:
+              type: string
+            url:
+              type: string
+            autoDiscovery:
+              type: boolean
+            rate:
+              type: object
+              properties:
+                mrps:
+                  type: integer
+            source:
+              type: object
+              properties:
+                include:
+                  type: array
+                  items:
+                    type: string
+                exclude:
+                  type: array
+                  items:
+                    type: string
+                tests:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                      path:
+                        type: string
+                      regex:
+                        type: string
+                sitemaps:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                      path:
+                        type: string
+                      regex:
+                        type: string
+                rss:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                      path:
+                        type: string
+                      regex:
+                        type: string
+            type:
+              type: string
+            parser:
+              type: object
+        script:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+            metrics:
+              type: object
+              properties:
+                track:
+                  type: array
+                  items:
+                    type: string
+            linking:
+              type: object
+              properties:
+                articleSelector:
+                  type: string
+        jsonLd:
+          type: object
+          properties:
+            articleSchemaName:
+              type: string
+
+  requestBodies:
+    LoginRequest:
+      description: Login Object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Login'
+    SignupRequest:
+      description: Signup Object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SignupRequest'
+    SearchRequest:
+      description: Search Object to be searched
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Search'
+      required: true
+    ArticleRequest:
+      description: Article Object to be saved and processed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Article'
+      required: true
+    TopicRequest:
+      description: Topic Object to be saved and processed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Topic'
+      required: true
+  securitySchemes:
+    Authorization:
+      type: apiKey
+      name: token
+      in: header
+    X-Secret-Key:
+      type: apiKey
+      name: X-Secret-Key
+      in: header
