@@ -1,6 +1,8 @@
 # SUBJCT MCP Server
 
-see : https://github.com/Systerr/Subjct_MCP
+see : 
+* https://github.com/Systerr/Subjct_MCP
+* https://docs.google.com/document/d/1ap0IUbJMawF6KA_6MYG0ClZHlMLPTn2tcFXBfSFH1ck/edit?tab=t.0
 
 ## Objective
 Develop a Model Context Protocol (MCP) server using SUBJCT's provided API endpoints to demonstrate capabilities and solve real-world content optimisation challenges via an agentic delivery method.
@@ -48,7 +50,56 @@ Use the following article for testing: https://emmajaneknight.com/blogs/news
 ### API Documentation
 SUBJCT Swagger Documentation: https://api.subjct.ai/docs/swagger/ 
 
-### References 
+### Use Case Journey 
+
 
 * https://emmajaneknight.com/blogs/news/juicing-the-2025-creative-comfort-zone
-* 
+
+1. Send the article 
+
+### Pitch Deck 
+
+
+Certainly! Here is a concise 3-slide pitch deck summary for the hackathon idea integrating SUBJCT with MCP for content optimization:
+
+### **Slide 1: Problem & Opportunity**
+
+**Problem:**  
+- E-commerce and content-heavy Shopify/WordPress sites struggle to consistently optimize internal linking, metadata, and schema at scale.  
+- Manual SEO enhancements are time-consuming, error-prone, and hard to maintain.  
+- AI-driven platforms (ChatGPT, Claude, Google ADK) need enriched, well-structured content context for better responses.
+
+**Opportunity:**  
+- Automated content optimization + AI-context integration can boost search rankings, user engagement, and AI interactions.  
+- Using SUBJCT’s API combined with the emerging Model Context Protocol (MCP), we can build a scalable, automated server to transform CMS content seamlessly.
+
+### **Slide 2: Solution Overview**
+
+**What We Built:**  
+- A **Model Context Protocol (MCP) Server** leveraging SUBJCT’s API to analyze and enrich Shopify/WordPress articles in real-time.  
+- Automatically injects relevant internal links, tags, schema markup, and knowledge graph data—enhancing SEO and content discoverability.  
+- Fully compatible with SUBJCT’s existing features and extendable to any CMS platform.
+
+**How It Works:**  
+1. Content pulled from CMS → sent to MCP server.  
+2. MCP server calls SUBJCT API for content analysis & enrichment.  
+3. Enriched content with optimized links & metadata delivered back for publishing/AI processing.  
+4. MCP server plugs into LLM platforms (Claude, ChatGPT, Google ADK) for smarter AI responses.
+
+### **Slide 3: Impact & Next Steps**
+
+**Impact:**  
+- Saves hours of manual SEO and content optimization work.  
+- Increases organic traffic and customer engagement through better site architecture.  
+- Enhances AI-driven tools’ effectiveness using richer, structured content context.  
+- Demonstrates future-proof integration between CMS, SEO automation, and AI ecosystems.
+
+**Next Steps:**  
+- Scale MCP server to support multiple CMS integrations and features (e.g., multilingual support).  
+- Develop UI tools for non-technical users to customize linking rules and schema presets.  
+- Expand AI integration by building demo apps with ChatGPT and Google ADK using MCP.  
+- Explore commercializing as a Shopify App or WordPress Plugin to streamline adoption.
+
+
+
+
