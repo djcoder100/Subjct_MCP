@@ -100,6 +100,17 @@ Certainly! Here is a concise 3-slide pitch deck summary for the hackathon idea i
 - Expand AI integration by building demo apps with ChatGPT and Google ADK using MCP.  
 - Explore commercializing as a Shopify App or WordPress Plugin to streamline adoption.
 
+## Install
+
+* https://emmajaneknight.com/blogs/news/juicing-the-2025-creative-comfort-zone
+
+```json
+    "subjct": {
+      "command": "{FULL_PATH}/node",
+      "args": ["{FULL_PATH}/index.ts"],
+      "env": {
+      }
+    }
 
 
 
