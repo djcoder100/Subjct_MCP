@@ -6,7 +6,7 @@ see :
 * [Planning Doc](https://docs.google.com/document/d/1DFYeTMUhz_5ripI_QwwRtkI9wPDY8DvADmSAD_G2JFg/edit?tab=t.0)
 * https://lu.ma/ibaiz50k?tk=7YCgct
 * https://www.loom.com/share/a5a4751aa79544a590cd63555479de0b
-* [<img src="https://i.ytimg.com/vi/Hc79sDi3f0U/maxresdefault.jpg" width="50%">](https://www.youtube.com/watch?v=Hc79sDi3f0U "Now in Android: 55")
+* [<img src="https://i.ytimg.com/vi/Hc79sDi3f0U/maxresdefault.jpg" width="50%">](https://www.loom.com/share/a5a4751aa79544a590cd63555479de0b "Demo Video")
 * 
 
 
