@@ -1,10 +1,13 @@
 # SUBJCT MCP Server
 
 see : 
+* https://www.subjct.ai/
 * https://github.com/Systerr/Subjct_MCP
 * [Planning Doc](https://docs.google.com/document/d/1DFYeTMUhz_5ripI_QwwRtkI9wPDY8DvADmSAD_G2JFg/edit?tab=t.0)
 * https://lu.ma/ibaiz50k?tk=7YCgct
 * https://www.loom.com/share/a5a4751aa79544a590cd63555479de0b
+
+* [<img src="https://cdn.prod.website-files.com/65d7712da030871fdf6014b0/65dc6d5fc0369bba3cab4068_Asset%201.svg" width="50%">]([https://www.youtube.com/watch?v=Hc79sDi3f0U](https://www.loom.com/share/a5a4751aa79544a590cd63555479de0b) "Demo Video")
 
 
 ## Objective
