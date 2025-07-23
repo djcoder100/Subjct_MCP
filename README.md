@@ -2,8 +2,9 @@
 
 see : 
 * https://github.com/Systerr/Subjct_MCP
-* https://docs.google.com/document/d/1ap0IUbJMawF6KA_6MYG0ClZHlMLPTn2tcFXBfSFH1ck/edit?tab=t.0
+* [Planning Doc](https://docs.google.com/document/d/1DFYeTMUhz_5ripI_QwwRtkI9wPDY8DvADmSAD_G2JFg/edit?tab=t.0)
 * https://lu.ma/ibaiz50k?tk=7YCgct
+* https://www.loom.com/share/a5a4751aa79544a590cd63555479de0b
 
 
 ## Objective
