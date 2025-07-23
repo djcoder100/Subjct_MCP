@@ -4,10 +4,11 @@ see :
 * https://www.subjct.ai/
 * https://github.com/Systerr/Subjct_MCP
 * [Planning Doc](https://docs.google.com/document/d/1DFYeTMUhz_5ripI_QwwRtkI9wPDY8DvADmSAD_G2JFg/edit?tab=t.0)
-* https://lu.ma/ibaiz50k?tk=7YCgct
-* https://www.loom.com/share/a5a4751aa79544a590cd63555479de0b
-* [<img src="https://i.ytimg.com/vi/Hc79sDi3f0U/maxresdefault.jpg" width="50%">](https://www.loom.com/share/a5a4751aa79544a590cd63555479de0b "Demo Video")
-* 
+* [Hack Event](https://lu.ma/ibaiz50k?tk=7YCgct)
+* [Video](https://www.loom.com/share/a5a4751aa79544a590cd63555479de0b)
+* [Pitch Deck](https://www.canva.com/design/DAGt6zBwL60/z4jFuD2iPgZQL3RY7QuI5A/view?utm_content=DAGt6zBwL60&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h94d74bd406)
+
+[<img src="image.png" width="100%">](https://www.loom.com/share/a5a4751aa79544a590cd63555479de0b "Demo Video")
 
 
 ## Objective
@@ -64,9 +65,6 @@ SUBJCT Swagger Documentation: https://api.subjct.ai/docs/swagger/
 1. Send the article 
 
 ### Pitch Deck 
-
-
-Certainly! Here is a concise 3-slide pitch deck summary for the hackathon idea integrating SUBJCT with MCP for content optimization:
 
 ### **Slide 1: Problem & Opportunity**
 
